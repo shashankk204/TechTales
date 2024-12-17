@@ -42,8 +42,10 @@ export const signin=async (c:Context<Bindings>)=>{
     let data = await c.req.json();
     let email=data.email;
     let password=data.password;
+
+    
     const userdata=await prisma.user.findUnique({where:{email:email,password:password}});
-    console.log(userdata);
+    
     if(!userdata) return c.json({"error":"invalid Credintials"});
 
 
@@ -52,3 +54,20 @@ export const signin=async (c:Context<Bindings>)=>{
     
 
 }
+
+
+
+// [
+//     {
+//         "id": "000bdc23-5548-4bc1-851b-ab35fea043c5",
+//         "email": "test@gmail.com",
+//         "name": "testacc",
+//         "password": "123456"
+//     },
+//     {
+//         "id": "0a3dc17e-d161-43c6-a768-def164962139",
+//         "email": "test1@gmail.com",
+//         "name": "testacc",
+//         "password": "123456"
+//     }
+// ]
