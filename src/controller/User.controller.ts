@@ -2,8 +2,7 @@ import { Context } from "hono";
 import { Bindings } from "../utils/types";
 import { getPrisma } from "../utils/getprisma";
 import { Jwt } from "hono/utils/jwt";
-
-
+import bcryptjs from "bcryptjs"
 
 export const signup=async (c:Context<Bindings>)=>{
     const prisma=getPrisma(c.env.DATABASE_URL);
@@ -11,12 +10,15 @@ export const signup=async (c:Context<Bindings>)=>{
     let email=data.email;
     let password=data.password;
     let name=data.name; 
+
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword=await bcryptjs.hash(password,salt);
     
     try 
     {
         let newuser=await prisma.user.create({data:{
             email:email,
-            password:password,
+            password:hashedPassword,
             name:name
         }});
 
@@ -44,10 +46,11 @@ export const signin=async (c:Context<Bindings>)=>{
     let password=data.password;
 
     
-    const userdata=await prisma.user.findUnique({where:{email:email,password:password}});
-    
+    const userdata=await prisma.user.findUnique({where:{email:email}});
     if(!userdata) return c.json({"error":"invalid Credintials"});
 
+    let checkpassword=await bcryptjs.compare(password,userdata.password);
+    if(!checkpassword) return c.json({"error":"invalid credentials"});
 
     const token=await Jwt.sign({id:userdata?.id},c.env.JWT_SECRET);//must from the id of the user
     return c.json({"Authorization":token});
