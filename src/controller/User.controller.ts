@@ -3,10 +3,15 @@ import { Bindings } from "../utils/types";
 import { getPrisma } from "../utils/getprisma";
 import { Jwt } from "hono/utils/jwt";
 import bcryptjs from "bcryptjs"
+import { signinSchema, signupSchema } from "@shashankk204/techtales";
 
 export const signup=async (c:Context<Bindings>)=>{
     const prisma=getPrisma(c.env.DATABASE_URL);
-    let data=await c.req.json()
+    let data=await c.req.json();
+
+    let typeCheck=signupSchema.safeParse(data);
+    if(!typeCheck.success) return c.json({"error":typeCheck.error});
+
     let email=data.email;
     let password=data.password;
     let name=data.name; 
@@ -42,6 +47,9 @@ export const signin=async (c:Context<Bindings>)=>{
     
     
     let data = await c.req.json();
+    const typeCheck=signinSchema.safeParse(data);
+    if(!typeCheck.success) return c.json({"error":typeCheck.error});
+
     let email=data.email;
     let password=data.password;
 
@@ -64,13 +72,6 @@ export const signin=async (c:Context<Bindings>)=>{
 //     {
 //         "id": "000bdc23-5548-4bc1-851b-ab35fea043c5",
 //         "email": "test@gmail.com",
-//         "name": "testacc",
-//         "password": "123456"
+//         "name": "testAcc",
+//         "password": "12345678"
 //     },
-//     {
-//         "id": "0a3dc17e-d161-43c6-a768-def164962139",
-//         "email": "test1@gmail.com",
-//         "name": "testacc",
-//         "password": "123456"
-//     }
-// ]

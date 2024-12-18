@@ -1,21 +1,21 @@
 import { Context } from "hono";
 import { Bindings } from "../utils/types";
 import { getPrisma } from "../utils/getprisma";
+import { createBlogSchema, updatePostInput } from "@shashankk204/techtales";
 
 
 
-export const test= async (c:Context<Bindings>)=>
-{
-    const authorid=c.get("id");
-    console.log(authorid);
-    return c.json({"message":"testing"});
-}
+
 
 export const PostBlog= async (c:Context<Bindings>)=>
 {
+
     const authordid =c.get("id");
     const prisma = getPrisma(c.env.DATABASE_URL);    
     const data=await c.req.json();
+    const typeCheck=createBlogSchema.safeParse(data);
+    if(!typeCheck.success) return c.json({"message":typeCheck.error});
+
     const title=data.title;
     const content=data.content;
 
@@ -34,6 +34,9 @@ export const UpdateBlog=async (c:Context<Bindings>)=>{
     const prisma=getPrisma(c.env.DATABASE_URL);
     const authorid=c.get("id");
     const body= await c.req.json();
+    const typeCheck=updatePostInput.safeParse(body);
+    if(!typeCheck.success) return c.json({"message":typeCheck.error});
+
     const title=body.title;
     const content=body.content;
     const postId=body.id;
@@ -99,4 +102,4 @@ export const FetchAllBlog= async (c:Context<Bindings>)=>{
 
 
 
-// PostId": "5cdc9a51-741e-4e6d-8b14-9dae721e9243","a9668b85-1381-4ca3-9f11-7fc539d25148"
+//  "PostId": "fb7a9325-0d4d-4a7f-b219-f3a0aadf29a6"
